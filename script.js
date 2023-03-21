@@ -100,7 +100,7 @@ displayTransactions(account1.transactions);
 
 const createNicknames = function (accs) {
   accs.forEach(function (acc) {
-    acc.nickname = userName
+    acc.nickname = acc.userName
       .toLowerCase()
       .split(' ')
       .map(function (word) {
@@ -122,4 +122,7 @@ createNicknames(accounts);
 
 const displayBalance = function (transactions) {
   const balance = transactions.reduce((acc, trans) => acc + trans, 0);
+  labelBalance.textContent = `${balance}$`;
 };
+
+displayBalance(account1.transactions);
