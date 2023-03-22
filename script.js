@@ -126,3 +126,37 @@ const displayBalance = function (transactions) {
 };
 
 displayBalance(account1.transactions);
+
+const displayTotal = function (transactions) {
+  const depositesTotal = transactions
+    .filter(trans => trans > 0)
+    .reduce((acc, trans) => acc + trans, 0);
+  labelSumIn.textContent = `${depositesTotal}$`;
+
+  const withdrawalsTotal = transactions
+    .filter(trans => trans < 0)
+    .reduce((acc, trans) => acc + trans, 0);
+  labelSumOut.textContent = `${withdrawalsTotal}$`;
+
+  const interestTotal = transactions
+    .filter(trans => trans > 0)
+    .map(depos => (depos * 1.1) / 100)
+    .filter((interes, index, arr) => {
+      console.log(arr);
+      return interes => 5;
+    })
+    .reduce((acc, interest) => acc + interest, 0);
+
+  labelSumInterest.textContent = `${interestTotal}$`;
+};
+displayTotal(account1.transactions);
+
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  e.preventDefault();
+  currentAccount = accounts.find(
+    account => (account.nickname = inputLoginUsername.value)
+  );
+  console.log(currentAccount);
+});
