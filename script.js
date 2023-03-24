@@ -1,7 +1,5 @@
 'use strict';
 
-// Simply Bank App
-
 const account1 = {
   userName: 'Cecil Ireland',
   transactions: [500, 250, -300, 5000, -850, -110, -170, 1100],
@@ -47,16 +45,13 @@ const labelSumIn = document.querySelector('.total__value--in');
 const labelSumOut = document.querySelector('.total__value--out');
 const labelSumInterest = document.querySelector('.total__value--interest');
 const labelTimer = document.querySelector('.timer');
-
 const containerApp = document.querySelector('.app');
 const containerTransactions = document.querySelector('.transactions');
-
 const btnLogin = document.querySelector('.login__btn');
 const btnTransfer = document.querySelector('.form__btn--transfer');
 const btnLoan = document.querySelector('.form__btn--loan');
 const btnClose = document.querySelector('.form__btn--close');
 const btnSort = document.querySelector('.btn--sort');
-
 const inputLoginUsername = document.querySelector('.login__input--user');
 const inputLoginPin = document.querySelector('.login__input--pin');
 const inputTransferTo = document.querySelector('.form__input--to');
@@ -64,7 +59,6 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
-
 containerTransactions.innerHTML = '';
 
 const displayTransactions = function (transactions) {
@@ -83,21 +77,6 @@ const displayTransactions = function (transactions) {
   });
 };
 
-displayTransactions(account1.transactions);
-
-//
-
-// const userName = 'Oliver Avila'; // oa
-// const nickname = userName
-//   .toLowerCase()
-//   .split(' ')
-//   .map(function (word) {
-//     return word[0];
-//   })
-//   .join('');
-
-// console.log(nickname);
-
 const createNicknames = function (accs) {
   accs.forEach(function (acc) {
     acc.nickname = acc.userName
@@ -112,51 +91,61 @@ const createNicknames = function (accs) {
 
 createNicknames(accounts);
 
-// const nickname1 = userName
-//   .toLowerCase()
-//   .split(' ')
-//   .map(word => word[0])
-//   .join('');
-
-// console.log(nickname1);
-
 const displayBalance = function (transactions) {
   const balance = transactions.reduce((acc, trans) => acc + trans, 0);
   labelBalance.textContent = `${balance}$`;
 };
 
-displayBalance(account1.transactions);
-
-const displayTotal = function (transactions) {
-  const depositesTotal = transactions
+const displayTotal = function (account) {
+  const depositesTotal = account.transactions
     .filter(trans => trans > 0)
     .reduce((acc, trans) => acc + trans, 0);
   labelSumIn.textContent = `${depositesTotal}$`;
 
-  const withdrawalsTotal = transactions
+  const withdrawalsTotal = account.transactions
     .filter(trans => trans < 0)
     .reduce((acc, trans) => acc + trans, 0);
   labelSumOut.textContent = `${withdrawalsTotal}$`;
 
-  const interestTotal = transactions
+  const interestTotal = account.transactions
     .filter(trans => trans > 0)
-    .map(depos => (depos * 1.1) / 100)
-    .filter((interes, index, arr) => {
+    .map(depos => (depos * account.interest) / 100)
+    .filter((interest, index, arr) => {
       console.log(arr);
-      return interes => 5;
+      return interest => 5;
     })
     .reduce((acc, interest) => acc + interest, 0);
 
   labelSumInterest.textContent = `${interestTotal}$`;
 };
-displayTotal(account1.transactions);
 
 let currentAccount;
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
   currentAccount = accounts.find(
-    account => (account.nickname = inputLoginUsername.value)
+    account => account.nickname === inputLoginUsername.value
   );
   console.log(currentAccount);
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // display UI
+    labelWelcome.textContent = `We are glad that you are with us, ${currentAccount.userName.split(
+      ''[0]
+    )} !`;
+
+    containerApp.style.opacity = 100;
+    //clear inputs
+    inputLoginUsername.value = '';
+    inputLoginPin.value = '';
+    inputLoginPin.blur();
+    //display transactions
+    displayTransactions(currentAccount.transactions);
+
+    //display balance
+    displayBalance(currentAccount.transactions);
+
+    //display total
+    displayTotal(currentAccount);
+  }
 });
