@@ -82,17 +82,16 @@ const createNicknames = function (accs) {
     acc.nickname = acc.userName
       .toLowerCase()
       .split(' ')
-      .map(function (word) {
-        return word[0];
-      })
+      .map(word => word[0])
       .join('');
   });
 };
 
 createNicknames(accounts);
 
-const displayBalance = function (transactions) {
-  const balance = transactions.reduce((acc, trans) => acc + trans, 0);
+const displayBalance = function (account) {
+  const balance = account.transactions.reduce((acc, trans) => acc + trans, 0);
+  account.balance = balance;
   labelBalance.textContent = `${balance}$`;
 };
 
@@ -111,15 +110,27 @@ const displayTotal = function (account) {
     .filter(trans => trans > 0)
     .map(depos => (depos * account.interest) / 100)
     .filter((interest, index, arr) => {
-      console.log(arr);
-      return interest => 5;
+      return interest >= 5;
     })
     .reduce((acc, interest) => acc + interest, 0);
 
   labelSumInterest.textContent = `${interestTotal}$`;
 };
 
+const updateUi = function (account) {
+  //display transactions
+  displayTransactions(account.transactions);
+
+  //display balance
+  displayBalance(account);
+
+  //display total
+  displayTotal(account);
+};
+
 let currentAccount;
+
+// Event Handlers
 
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
@@ -130,22 +141,60 @@ btnLogin.addEventListener('click', function (e) {
 
   if (currentAccount?.pin === Number(inputLoginPin.value)) {
     // display UI
-    labelWelcome.textContent = `We are glad that you are with us, ${currentAccount.userName.split(
-      ''[0]
-    )} !`;
+    labelWelcome.textContent = `We are glad that you are with us, ${
+      currentAccount.userName.split(' ')[0]
+    } !`;
 
     containerApp.style.opacity = 100;
     //clear inputs
     inputLoginUsername.value = '';
     inputLoginPin.value = '';
     inputLoginPin.blur();
-    //display transactions
-    displayTransactions(currentAccount.transactions);
 
-    //display balance
-    displayBalance(currentAccount.transactions);
-
-    //display total
-    displayTotal(currentAccount);
+    updateUi(currentAccount);
   }
+});
+
+btnTransfer.addEventListener('click', function (e) {
+  e.preventDefault();
+  const transferAmount = Number(inputTransferAmount.value);
+  const recipientNickname = inputTransferTo.value;
+  const recipientAccount = accounts.find(
+    account => account.nickname === recipientNickname
+  );
+  console.log(transferAmount);
+  console.log(recipientAccount);
+
+  inputTransferTo.value = '';
+  inputTransferAmount.value = '';
+
+  if (
+    transferAmount > 0 &&
+    currentAccount.balance >= transferAmount &&
+    recipientAccount &&
+    currentAccount.nickname !== recipientAccount.nickname
+  ) {
+    currentAccount.transactions.push(-transferAmount);
+    recipientAccount.transactions.push(transferAmount);
+    updateUi(currentAccount);
+  }
+});
+
+btnClose.addEventListener('click', function (e) {
+  e.preventDefault();
+  console.log('Close');
+  if (
+    inputCloseUsername.value === currentAccount.nickname &&
+    Number(inputClosePin.value) === currentAccount.pin
+  ) {
+    const currentAccountIndex = accounts.findIndex(
+      account => account.nickname === currentAccount.nickname
+    );
+    accounts.splice(currentAccountIndex, 1);
+    containerApp.style.opacity = 0;
+    labelWelcome.textContent = 'Enter your account ';
+  }
+
+  inputCloseUsername.value = '';
+  inputClosePin.value = '';
 });
