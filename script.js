@@ -61,8 +61,14 @@ const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 containerTransactions.innerHTML = '';
 
-const displayTransactions = function (transactions) {
-  transactions.forEach(function (trans, index) {
+const displayTransactions = function (transactions, sort = false) {
+  containerTransactions.innerHTML = '';
+
+  const transacs = sort
+    ? transactions.slice().sort((x, y) => x - y)
+    : transactions;
+
+  transacs.forEach(function (trans, index) {
     const transType = trans > 0 ? 'deposit' : 'withdrawal';
 
     const transactionRow = `<div class="transactions__row">
@@ -197,4 +203,45 @@ btnClose.addEventListener('click', function (e) {
 
   inputCloseUsername.value = '';
   inputClosePin.value = '';
+});
+
+btnLoan.addEventListener('click', function (e) {
+  e.preventDefault();
+
+  const loanAmount = Number(inputLoanAmount.value);
+
+  if (
+    loanAmount > 0 &&
+    currentAccount.transactions.some(trans => trans >= (loanAmount * 10) / 100)
+  ) {
+    currentAccount.transactions.push(loanAmount);
+    updateUi(currentAccount);
+  }
+  inputLoanAmount.value = '';
+});
+
+let transactionsSorted = false;
+
+btnSort.addEventListener('click', function (e) {
+  e.preventDefault();
+  displayTransactions(currentAccount.transactions, !transactionsSorted);
+
+  transactionsSorted = !transactionsSorted;
+});
+
+// Array.from(example)
+
+logoImage.addEventListener('click', function () {
+  const transactionsUi = document.querySelectorAll('.transactions__value');
+  console.log(transactionsUi);
+
+  // const logoImage = document.querySelector('.logo');
+  // console.log(transactionsUi);
+  // const transactionsUiArray = Array.from;
+  // transactionsUi;
+  // console.log(transactionsUi.map(elem => Number(elem.textContent)));
+  const transactionsUiArray = Array.from(transactionsUi, elem =>
+    Number(elem.textContent)
+  );
+  console.log(transactionsUiArray);
 });
